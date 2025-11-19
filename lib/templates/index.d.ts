@@ -16,6 +16,9 @@ declare const _default: {
             'formio-day-component-hour': string;
             'formio-day-component-minute': string;
         };
+        address: {
+            form: string;
+        };
         button: {
             form: string;
         };

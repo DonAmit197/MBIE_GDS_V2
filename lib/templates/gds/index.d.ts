@@ -1,5 +1,4 @@
-/** @format */
-import './template.css';
+import "./template.css";
 declare const _default: {
     transform(type: any, text: any): any;
     defaultIconset: string;
@@ -16,6 +15,9 @@ declare const _default: {
         'formio-day-component-year': string;
         'formio-day-component-hour': string;
         'formio-day-component-minute': string;
+    };
+    address: {
+        form: string;
     };
     button: {
         form: string;
