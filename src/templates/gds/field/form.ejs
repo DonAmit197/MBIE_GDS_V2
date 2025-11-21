@@ -1,28 +1,37 @@
-<!-- @format -->
-
-{% if (ctx.label.labelPosition !== 'bottom') { %}
-{{ ctx.labelMarkup }}
-{% } %} {% if (ctx.component.description) { %}
-<div class="govuk-hint" id="d-{{ ctx.instance.id }}-{{ ctx.component.key }}">
-  {{ ctx.t(ctx.component.description) }}
-</div>
-{% } %}
-<div ref="messageContainer" class="govuk-error-message"></div>
-{{ ctx.element }}
-{% if (ctx.component.tooltip) { %}
-<details
-  class="govuk-details"
-  style="margin-top: 5px"
-  data-module="govuk-details">
-  <summary class="govuk-details__summary">
-    <span class="govuk-details__summary-text">
-      {{ ctx.component.tooltipTitle || 'Help' }}
-    </span>
-  </summary>
-  <div class="govuk-details__text">
-    {{ ctx.component.tooltip }}
+<fieldset
+  class="govuk-fieldset"
+  aria-describedby="{% if
+  (ctx.component.description) { %}d-{{ ctx.instance.id }}-{{
+    ctx.component.key
+  }}{% } %}"
+  aria-labelledby="l-{{ ctx.instance.id }}-{{ ctx.component.key }} {% if
+  (ctx.component.description) { %}d-{{ ctx.instance.id }}-{{
+    ctx.component.key
+  }}{% } %}"
+>
+  <legend
+    class="govuk-visually-hidden hide-in-pdf"
+    id="l-{{ ctx.instance.id }}-{{ ctx.component.key }}-legend"
+  >
+    {{ ctx.t(ctx.component.label) }}
+  </legend>
+  <div class="govuk-checkboxes">
+    {% ctx.values.forEach(function(item) { %}
+    <div class="govuk-checkboxes__item" ref="wrapper">
+      <{{ ctx.input.type }}
+      ref="input" {% for (var attr in ctx.input.attr) { %}
+      {{ attr }}="{{ ctx.input.attr[attr] }} {% if (attr==='class') { %}
+      govuk-checkboxes__input {% } %}" {% } %} value="{{ item.value }}" {% if
+      (ctx.value === item.value || (typeof ctx.value === 'object' &&
+      ctx.value.hasOwnProperty(item.value) && ctx.value[item.value])) { %}
+      checked=true {% } %} id="{{ ctx.id }}{{ ctx.row }}-{{ item.value }}" >
+      <label
+        class="govuk-label govuk-checkboxes__label"
+        for="{{ ctx.id }}{{ ctx.row }}-{{ item.value }}"
+      >
+        <span>{{ ctx.t(item.label) }}</span>
+      </label>
+    </div>
+    {% }) %}
   </div>
-</details>
-{% } %} {% if (ctx.label.labelPosition === 'bottom') { %}
-{{ ctx.labelMarkup }}
-{% } %}
+</fieldset>
