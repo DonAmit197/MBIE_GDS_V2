@@ -7,7 +7,11 @@
     govuk-checkboxes__input {% } %}" {% } %} value="{{ item.value }}" {% if
     (ctx.value === item.value || (typeof ctx.value === 'object' &&
     ctx.value.hasOwnProperty(item.value) && ctx.value[item.value])) { %}
-    checked=true {% } %} id="{{ ctx.id }}{{ ctx.row }}-{{ item.value }}" >
+    checked=true {% } %} id="{{ ctx.id }}{{ ctx.row }}-{{ item.value }}"
+    aria-labelledby="l-{{ ctx.instance.id }}-{{ ctx.component.key }} {% if
+    (ctx.component.description) { %}d-{{ ctx.instance.id }}-{{
+      ctx.component.key
+    }}{% } %}" >
     <label
       class="govuk-label govuk-checkboxes__label"
       for="{{ ctx.id }}{{ ctx.row }}-{{ item.value }}"
