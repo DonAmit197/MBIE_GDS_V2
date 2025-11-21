@@ -4,7 +4,10 @@
   (ctx.component.description) { %}d-{{ ctx.instance.id }}-{{
     ctx.component.key
   }}{% } %}"
-  aria-labelledby="l-{{ ctx.instance.id }}-{{ ctx.component.key }}-legend"
+  aria-labelledby="l-{{ ctx.instance.id }}-{{ ctx.component.key }} {% if
+  (ctx.component.description) { %}d-{{ ctx.instance.id }}-{{
+    ctx.component.key
+  }}{% } %}"
 >
   <legend
     class="govuk-visually-hidden hide-in-pdf"
