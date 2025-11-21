@@ -1,25 +1,33 @@
-<div
-  class="govuk-checkboxes"
-  aria-labelledby="l-{{ ctx.instance.id }}-{{ ctx.component.key }} {% if
-    (ctx.component.description) { %}d-{{ ctx.instance.id }}-{{
+<fieldset
+  class="govuk-fieldset"
+  aria-describedby="{% if
+  (ctx.component.description) { %}d-{{ ctx.instance.id }}-{{
     ctx.component.key
   }}{% } %}"
 >
-  {% ctx.values.forEach(function(item) { %}
-  <div class="govuk-checkboxes__item" ref="wrapper">
-    <{{ ctx.input.type }}
-    ref="input" {% for (var attr in ctx.input.attr) { %}
-    {{ attr }}="{{ ctx.input.attr[attr] }} {% if (attr==='class') { %}
-    govuk-checkboxes__input {% } %}" {% } %} value="{{ item.value }}" {% if
-    (ctx.value === item.value || (typeof ctx.value === 'object' &&
-    ctx.value.hasOwnProperty(item.value) && ctx.value[item.value])) { %}
-    checked=true {% } %} id="{{ ctx.id }}{{ ctx.row }}-{{ item.value }}" >
-    <label
-      class="govuk-label govuk-checkboxes__label"
-      for="{{ ctx.id }}{{ ctx.row }}-{{ item.value }}"
-    >
-      <span>{{ ctx.t(item.label) }}</span>
-    </label>
+  <legend
+    class="govuk-visually-hidden hide-in-pdf"
+    id="l-{{ ctx.instance.id }}-{{ ctx.component.key }}-legend"
+  >
+    {{ ctx.input.label }}
+  </legend>
+  <div class="govuk-checkboxes">
+    {% ctx.values.forEach(function(item) { %}
+    <div class="govuk-checkboxes__item" ref="wrapper">
+      <{{ ctx.input.type }}
+      ref="input" {% for (var attr in ctx.input.attr) { %}
+      {{ attr }}="{{ ctx.input.attr[attr] }} {% if (attr==='class') { %}
+      govuk-checkboxes__input {% } %}" {% } %} value="{{ item.value }}" {% if
+      (ctx.value === item.value || (typeof ctx.value === 'object' &&
+      ctx.value.hasOwnProperty(item.value) && ctx.value[item.value])) { %}
+      checked=true {% } %} id="{{ ctx.id }}{{ ctx.row }}-{{ item.value }}" >
+      <label
+        class="govuk-label govuk-checkboxes__label"
+        for="{{ ctx.id }}{{ ctx.row }}-{{ item.value }}"
+      >
+        <span>{{ ctx.t(item.label) }}</span>
+      </label>
+    </div>
+    {% }) %}
   </div>
-  {% }) %}
-</div>
+</fieldset>
