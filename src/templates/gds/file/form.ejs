@@ -1,149 +1,323 @@
+{% var labelId = 'f-' + ctx.instance.id + '-' + ctx.component.key; %}
+{% var dVal = (ctx && ctx.instance && ctx.instance.dataValue) ? ctx.instance.dataValue : []; %}
+{% var hasDVal = false; %}
+
+{% if (dVal) { %}
+  {% if (Array.isArray(dVal)) { %}
+    {% hasDVal = dVal.length > 0; %}
+  {% } else if (typeof dVal === 'object') { %}
+    {% hasDVal = Object.keys(dVal).length > 0; %}
+  {% } else if (typeof dVal === 'string') { %}
+    {% hasDVal = dVal.replace(/\s+/g, '').length > 0; %}
+  {% } else { %}
+    {% hasDVal = true; %}
+  {% } %}
+{% } %}
+
 {% if (!ctx.self.imageUpload) { %}
-<table class="govuk-table custom-table">
-    <thead class="govuk-table__head">
-    <tr class="govuk-table__row">
-        {% if (!ctx.disabled) { %}
-        <th scope="col" class="govuk-table__header govuk-!-width-one-quarter custom-th">{{ctx.t('Action')}}</th>
-        {% } %}
-        {% if (ctx.self.hasTypes) { %}
-        <th scope="col" class="govuk-table__header govuk-!-width-one-quarter custom-th">{{ctx.t('File Name')}}</th>
-        {% } else { %}
-        <th scope="col" class="govuk-table__header govuk-!-width-one-half custom-th">{{ctx.t('File Name')}}</th>
-        {% } %}
-        <th scope="col" class="govuk-table__header govuk-!-width-one-quarter custom-th">{{ctx.t('Size')}}</th>
-        {% if (ctx.self.hasTypes) { %}
-        <th scope="col" class="govuk-table__header govuk-!-width-one-quarter custom-th">{{ctx.t('Type')}}</th>
-        {% } %}
-    </tr>
-    </thead>
-    <tbody class="govuk-table__body">
-    {% ctx.files.forEach(function(file) { %}
-        <tr class="govuk-table__row">
-            {% if (!ctx.disabled) { %}
-            <td class="govuk-table__cell"><button class="govuk-button govuk-button--warning govuk-!-margin-bottom-0" ref="removeLink">Remove</button></td>
-            {% } %}
-            <td class="govuk-table__cell">
-                {% if (ctx.component.uploadOnly) { %}
-                {{file.originalName || file.name}}
-                {% } else { %}
-                <a href="{{file.url || '#'}}" target="_blank" ref="fileLink">{{file.originalName || file.name}}</a>
-                {% } %}
-            </td>
-            <td class="govuk-table__cell">
-                {{ctx.fileSize(file.size)}}
-            </td>
-            {% if (ctx.self.hasTypes && !ctx.disabled) { %}
-            <td class="govuk-table__cell">
-                <select class="govuk-select" ref="fileType" >
-                    {% ctx.component.fileTypes.map(function(type) { %}
-                    <option class="test" value="{{ type.value }}" {% if (type.label === file.fileType) { %}selected="selected"{% } %}>{{ type.label }}</option>
-                    {% }); %}
-                </select>
-            </td>
-            {% } %}
-        </tr>
-    {% }) %}
-    </tbody>
-</table>
-{% } else { %}
-<table class="govuk-table custom-table">
-    <thead class="govuk-table__head">
-        <tr class="govuk-table__row">
-            {% if (!ctx.disabled) { %}
-            <th scope="col" class="govuk-table__header govuk-!-width-one-quarter custom-th">{{ctx.t('Action')}}</th>
-            {% } %}
-            <th scope="col" class="govuk-table__header custom-th {{ ctx.disabled ? 'govuk-!-width-full' : 'govuk-!-width-three-quarters'}}">{{ctx.t('Image name')}}</th>
-        </tr>
-    </thead>
-    <tbody class="govuk-table__body">
-        {% ctx.files.forEach(function(file) { %}
-        <tr class="govuk-table__row">
-        {% if (!ctx.disabled) { %}
-          <td class="govuk-table__cell"><button class="govuk-button govuk-button--warning govuk-!-margin-bottom-0" ref="removeLink">Remove</button></td>
-        {% } %}
-         <td class="govuk-table__cell">
-          <img ref="fileImage" src="" alt="{{file.originalName || file.name}}" style="width:{{ctx.component.imageSize}}px">
-         </td>
-        </tr>
-        {% }) %}
-    </tbody>
-</table>
-{% } %}
-{% if (!ctx.disabled && (ctx.component.multiple || !ctx.files.length)) { %}
-{% if (ctx.self.useWebViewCamera) { %}
-<div class="fileSelector">
-    <button class="govuk-button" data-module="govuk-button" ref="galleryButton">{{ctx.t('Gallery')}}</button>
-    <button class="govuk-button" data-module="govuk-button" ref="cameraButton">{{ctx.t('Camera')}}</button>
-</div>
-{% } else if (!ctx.self.cameraMode) { %}
-<div class="fileSelector" ref="fileDrop">
-    {{ctx.t('Drop files to attach,')}}
-    {% if (ctx.self.imageUpload) { %}
-    <a href="#" ref="toggleCameraMode">{{ctx.t('Use Camera,')}}</a>
+<table class="govuk-table custom-table"
+  {% if (!hasDVal) { %} tabindex="0" {% } %}
+>
+  <caption class="govuk-visually-hidden" id="{{labelId}}">
+    {{ctx.t('Upload files for')}}
+    {{ctx.component.label ? ctx.t(ctx.component.label) : ctx.t('Upload files')}}
+    {% if (ctx.component.description) { %}
+      <br />
+      <span>{{ctx.t(ctx.component.description)}}</span>
     {% } %}
-    {{ctx.t('or')}} <a href="#" ref="fileBrowse" class="browse">{{ctx.t('browse')}}</a>
-</div>
+  </caption>
+
+  <thead class="govuk-table__head">
+    <tr class="govuk-table__row">
+      {% if (!ctx.disabled) { %}
+        <th scope="col" class="govuk-table__header govuk-!-width-one-quarter custom-th">
+          {{ctx.t('Action')}}
+        </th>
+      {% } %}
+      {% if (ctx.self.hasTypes) { %}
+        <th scope="col" class="govuk-table__header govuk-!-width-one-quarter custom-th">
+          {{ctx.t('File Name')}}
+        </th>
+      {% } else { %}
+        <th scope="col" class="govuk-table__header govuk-!-width-one-half custom-th">
+          {{ctx.t('File Name')}}
+        </th>
+      {% } %}
+      <th scope="col" class="govuk-table__header govuk-!-width-one-quarter custom-th">
+        {{ctx.t('Size')}}
+      </th>
+      {% if (ctx.self.hasTypes) { %}
+        <th scope="col" class="govuk-table__header govuk-!-width-one-quarter custom-th">
+          {{ctx.t('Type')}}
+        </th>
+      {% } %}
+    </tr>
+  </thead>
+
+  <tbody class="govuk-table__body">
+    {% ctx.files.forEach(function(file, index) { %}
+      {% var fname = file.originalName || file.name; %}
+      <tr class="govuk-table__row">
+        {% if (!ctx.disabled) { %}
+          <td class="govuk-table__cell">
+            <button
+              class="govuk-button govuk-button--warning govuk-!-margin-bottom-0"
+              type="button"
+              ref="removeLink"
+              aria-label="{{ctx.t('Remove file')}}: {{fname}}"
+            >
+              {{ctx.t('Remove')}}
+            </button>
+          </td>
+        {% } %}
+
+        <td class="govuk-table__cell">
+          {% if (ctx.component.uploadOnly) { %}
+            <span>{{fname}}</span>
+          {% } else { %}
+            <a
+              href="{{file.url || '#'}}"
+              target="_blank"
+              rel="noopener noreferrer"
+              ref="fileLink"
+              aria-label="{{ctx.t('Open file in a new tab')}}: {{fname}}"
+            >
+              {{fname}}
+            </a>
+          {% } %}
+        </td>
+
+        <td class="govuk-table__cell">
+          {{ctx.fileSize(file.size)}}
+        </td>
+
+        {% if (ctx.self.hasTypes && !ctx.disabled) { %}
+          <td class="govuk-table__cell">
+            <label
+              class="govuk-visually-hidden"
+              for="{{ctx.component.key}}-type-{{index}}"
+            >
+              {{ctx.t('File type for')}} {{fname}}
+            </label>
+            <select
+              class="govuk-select"
+              id="{{ctx.component.key}}-type-{{index}}"
+              ref="fileType"
+              aria-label="{{ctx.t('File type for')}} {{fname}}"
+            >
+              {% ctx.component.fileTypes.map(function(type) { %}
+                <option
+                  value="{{ type.value }}"
+                  {% if (type.label === file.fileType) { %}selected="selected"{% } %}
+                >
+                  {{ type.label }}
+                </option>
+              {% }); %}
+            </select>
+          </td>
+        {% } %}
+      </tr>
+    {% }); %}
+  </tbody>
+</table>
+
 {% } else { %}
-<div>
-    <video class="video" autoplay="true" ref="videoPlayer"></video>
-</div>
-<button class="govuk-button" data-module="govuk-button" ref="takePictureButton">{{ctx.t('Take Picture')}}</button>
-<button class="govuk-button govuk-button--secondary" data-module="govuk-button" ref="toggleCameraMode">{{ctx.t('Switch to file upload')}}</button>
+
+<table class="govuk-table custom-table" aria-labelledby="{{labelId}}">
+  <caption class="govuk-visually-hidden" id="{{labelId}}">
+    {{ctx.t('Uploaded images')}}
+  </caption>
+
+  <thead class="govuk-table__head">
+    <tr class="govuk-table__row">
+      {% if (!ctx.disabled) { %}
+        <th scope="col" class="govuk-table__header govuk-!-width-one-quarter custom-th">
+          {{ctx.t('Action')}}
+        </th>
+      {% } %}
+      <th
+        scope="col"
+        class="govuk-table__header custom-th {{ ctx.disabled ? 'govuk-!-width-full' : 'govuk-!-width-three-quarters'}}"
+      >
+        {{ctx.t('Image name')}}
+      </th>
+    </tr>
+  </thead>
+
+  <tbody class="govuk-table__body">
+    {% ctx.files.forEach(function(file) { %}
+      {% var fname = file.originalName || file.name; %}
+      <tr class="govuk-table__row">
+        {% if (!ctx.disabled) { %}
+          <td class="govuk-table__cell">
+            <button
+              class="govuk-button govuk-button--warning govuk-!-margin-bottom-0"
+              type="button"
+              ref="removeLink"
+              aria-label="{{ctx.t('Remove image')}}: {{fname}}"
+            >
+              {{ctx.t('Remove')}}
+            </button>
+          </td>
+        {% } %}
+        <td class="govuk-table__cell">
+          <img
+            ref="fileImage"
+            src=""
+            alt="{{fname}}"
+            width="{{ctx.component.imageSize}}"
+            style="max-width: 100%; height: auto;"
+          >
+        </td>
+      </tr>
+    {% }); %}
+  </tbody>
+</table>
+
 {% } %}
+
+{% if (!ctx.disabled && (ctx.component.multiple || !ctx.files.length)) { %}
+  {% if (ctx.self.useWebViewCamera) { %}
+    <div
+      class="fileSelector"
+      role="group"
+      aria-label="{{ctx.t('Choose image source')}}"
+    >
+      <button
+        class="govuk-button"
+        data-module="govuk-button"
+        type="button"
+        ref="galleryButton"
+      >
+        {{ctx.t('Gallery')}}
+      </button>
+      <button
+        class="govuk-button"
+        data-module="govuk-button"
+        type="button"
+        ref="cameraButton"
+      >
+        {{ctx.t('Camera')}}
+      </button>
+    </div>
+  {% } else if (!ctx.self.cameraMode) { %}
+    <div
+      class="fileSelector"
+      ref="fileDrop"
+      aria-label="{{ctx.t('Drop files to attach or browse')}}"
+    >
+      <span aria-hidden="true">{{ctx.t('Drop files to attach,')}}</span>
+      {% if (ctx.self.imageUpload) { %}
+        <a href="#" ref="toggleCameraMode">{{ctx.t('Use Camera,')}}</a>
+      {% } %}
+      <span>{{ctx.t('or')}}</span>
+      <a href="#" ref="fileBrowse" class="browse">{{ctx.t('browse')}}</a>
+    </div>
+  {% } else { %}
+    <div>
+      <video
+        class="video"
+        autoplay="true"
+        ref="videoPlayer"
+        aria-label="{{ctx.t('Camera preview')}}"
+      ></video>
+    </div>
+    <button
+      class="govuk-button"
+      data-module="govuk-button"
+      type="button"
+      ref="takePictureButton"
+    >
+      {{ctx.t('Take Picture')}}
+    </button>
+    <button
+      class="govuk-button govuk-button--secondary"
+      data-module="govuk-button"
+      type="button"
+      ref="toggleCameraMode"
+    >
+      {{ctx.t('Switch to file upload')}}
+    </button>
+  {% } %}
 {% } %}
-<div class="govuk-!-margin-top-2">
-    {% ctx.statuses.forEach(function(status) { %}
-    <div class="file {{ctx.statuses.status === 'error' ? ' has-error' : ''}}">
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-one-quarter"><button class="govuk-button govuk-button--warning govuk-!-margin-bottom-2" ref="fileStatusRemove">Remove</button></div>
-            <div class="fileName govuk-label govuk-grid-column-one-quarter">{{status.originalName}}</div>
-            <div class="fileSize govuk-label govuk-grid-column-one-quarter">{{ctx.fileSize(status.size)}}</div>
-            <div class="govuk-grid-column-one-quarter">
-            {% if (status.status === 'progress') { %}
-                <div class="govuk-label">{{status.progress}}% {{ctx.t('Complete')}}</div>
-            {% } else if (status.status === 'error'){ %}
-                <div class="govuk-error-message"> {{ctx.t(status.message)}}</div>
-            {% } else { %}
-                 <div class="bg-{{status.status}}">{{ctx.t(status.message)}}</div>
-            {% } %}
+
+<div class="govuk-!-margin-top-2" aria-live="polite" role="status">
+  {% ctx.statuses.forEach(function(status) { %}
+    {% var isError = status.status === 'error'; %}
+    {% var fname = status.originalName || status.name; %}
+    <div class="file {{ isError ? 'has-error' : '' }}">
+      <div class="govuk-grid-row">
+        <div class="govuk-grid-column-one-quarter">
+          <button
+            class="govuk-button govuk-button--warning govuk-!-margin-bottom-2"
+            type="button"
+            ref="fileStatusRemove"
+            aria-label="{{ctx.t('Remove')}}: {{fname}}"
+          >
+            {{ctx.t('Remove')}}
+          </button>
+        </div>
+        <div class="fileName govuk-label govuk-grid-column-one-quarter">
+          {{fname}}
+        </div>
+        <div class="fileSize govuk-label govuk-grid-column-one-quarter">
+          {{ctx.fileSize(status.size)}}
+        </div>
+
+        <div class="govuk-grid-column-one-quarter">
+          {% if (status.status === 'progress') { %}
+            <div class="govuk-label">
+              {{status.progress}}% {{ctx.t('Complete')}}
             </div>
+          {% } else if (isError) { %}
+            <div class="govuk-error-message" role="alert">
+              <span class="govuk-visually-hidden">{{ctx.t('Error')}}:</span>
+              {{ctx.t(status.message)}}
+            </div>
+          {% } else { %}
+            <div class="bg-{{status.status}}">
+              {{ctx.t(status.message)}}
+            </div>
+          {% } %}
         </div>
+      </div>
     </div>
-    {% }) %}
+  {% }); %}
 </div>
+
 {% if (!ctx.component.storage || ctx.support.hasWarning) { %}
-<div class="govuk-grid-row">
+  <div class="govuk-grid-row">
     <div class="govuk-grid-column-full">
-        <div class="govuk-warning-text">
-            {% if (!ctx.component.storage) { %}
-            <span class="govuk-warning-text__icon" aria-hidden="true" style="min-width: 35px !important;">!</span>
-            <strong class="govuk-warning-text__text">
-                <span class="govuk-warning-text__assistive">Warning</span>
-                {{ctx.t('No storage has been set for this field. File uploads are disabled until storage is set up.')}}
-            </strong>
-            {% } %}
-            {% if (!ctx.support.filereader) { %}
-            <span class="govuk-warning-text__icon" aria-hidden="true" style="min-width: 35px !important;">!</span>
-            <strong class="govuk-warning-text__text">
-                <span class="govuk-warning-text__assistive">Warning</span>
-                {{ctx.t('File API & FileReader API not supported.')}}
-            </strong>
-            {% } %}
-            {% if (!ctx.support.formdata) { %}
-            <span class="govuk-warning-text__icon" aria-hidden="true" style="min-width: 35px !important;">!</span>
-            <strong class="govuk-warning-text__text">
-                <span class="govuk-warning-text__assistive">Warning</span>
-                {{ctx.t("XHR2's FormData is not supported.")}}
-            </strong>
-            {% } %}
-            {% if (!ctx.support.progress) { %}
-            <span class="govuk-warning-text__icon" aria-hidden="true" style="min-width: 35px !important;">!</span>
-            <strong class="govuk-warning-text__text">
-                <span class="govuk-warning-text__assistive">Warning</span>
-                {{ctx.t("XHR2's upload progress isn't supported.")}}
-            </strong>
-            {% } %}
-        </div>
+      <div class="govuk-warning-text">
+        {% if (!ctx.component.storage) { %}
+          <span class="govuk-warning-text__icon" aria-hidden="true" style="min-width: 35px;">!</span>
+          <strong class="govuk-warning-text__text">
+            <span class="govuk-warning-text__assistive">{{ctx.t('Warning')}}</span>
+            {{ctx.t('No storage has been set for this field. File uploads are disabled until storage is set up.')}}
+          </strong>
+        {% } %}
+        {% if (!ctx.support.filereader) { %}
+          <span class="govuk-warning-text__icon" aria-hidden="true" style="min-width: 35px;">!</span>
+          <strong class="govuk-warning-text__text">
+            <span class="govuk-warning-text__assistive">{{ctx.t('Warning')}}</span>
+            {{ctx.t('File API & FileReader API not supported.')}}
+          </strong>
+        {% } %}
+        {% if (!ctx.support.formdata) { %}
+          <span class="govuk-warning-text__icon" aria-hidden="true" style="min-width: 35px;">!</span>
+          <strong class="govuk-warning-text__text">
+            <span class="govuk-warning-text__assistive">{{ctx.t('Warning')}}</span>
+            {{ctx.t("XHR2's FormData is not supported.")}}
+          </strong>
+        {% } %}
+        {% if (!ctx.support.progress) { %}
+          <span class="govuk-warning-text__icon" aria-hidden="true" style="min-width: 35px;">!</span>
+          <strong class="govuk-warning-text__text">
+            <span class="govuk-warning-text__assistive">{{ctx.t('Warning')}}</span>
+            {{ctx.t("XHR2's upload progress isn't supported.")}}
+          </strong>
+        {% } %}
+      </div>
     </div>
-</div>
+  </div>
 {% } %}
